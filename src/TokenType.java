@@ -1,0 +1,27 @@
+//All the token types
+public enum TokenType {
+    NAME,
+    ASSIGNEMENT,
+    SKIP,
+    SEMICOLON,
+    OPENPARENTHESES,
+    CLOSEPARENTHESES,
+    IF,
+    THEN,
+    ELSE,
+    WHILE,
+    DO,
+    PRINT,
+    TRUE,
+    FALSE,
+    EQUAL,
+    LESSTHAN,
+    LESSTHANOREQUAL,
+    NOT,
+    AND,
+    OR,
+    INT,
+    PLUS,
+    MINUS,
+    MULTIPLICATION
+}
