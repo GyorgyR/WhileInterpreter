@@ -30,3 +30,6 @@
 *.exe
 *.out
 *.app
+
+#Since This is not C++ as planned here comes some java
+*.class
