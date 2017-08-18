@@ -88,10 +88,11 @@ public class Statements {
                                 else if(tokens[i].tokenType == TokenType.RBRACE)
                                     bStack--;
 
-                                if(bStack != 0)
+                                if(bStack != 0) {
                                     elseTokens.add(tokens[i]);
+                                    i++;
+                                }
 
-                                i++;
                             } //while
                         } //if
                     } //if
@@ -102,6 +103,64 @@ public class Statements {
                         bodyTokens.toArray(new Token[0]),elseTokens.toArray(new Token[0])));
                     break;
                 case WHILE:
+                    /* So this one has a:
+                        °Condition
+                        °Loop body
+
+                        Same tactic as with the if statement. Stack based extraction
+                        within parentheses.
+                    */
+
+                    //temporary holding list for the condition and body
+                    List<Token> tempCond = new ArrayList<Token>();
+                    List<Token> tempBody = new ArrayList<Token>();
+
+                    //TODO error handling
+                    if(tokens[i+1].tokenType == TokenType.OPAREN) {
+                        int pStack = 1;
+                        i += 2;
+
+                        while(pStack != 0) {
+                            if(tokens[i].tokenType == TokenType.OPAREN)
+                                pStack++;
+                            else if(tokens[i].tokenType == TokenType.CPAREN)
+                                pStack--;
+
+                            if(pStack != 0) 
+                                tempCond.add(tokens[i]);
+
+                            i++;
+                        } //while
+                    } //if
+                    else 
+                        System.out.println("No brackets after while");
+
+                    if(tokens[i].tokenType == TokenType.DO &&
+                        tokens[i+1].tokenType == TokenType.LBRACE) {
+                        int bStack = 1;
+                        i +=2 ;
+
+                        while(bStack != 0) {
+                            if(tokens[i].tokenType == TokenType.LBRACE)
+                                bStack++;
+                            else if(tokens[i].tokenType == TokenType.RBRACE)
+                                bStack--;
+
+                            if(bStack != 0) {
+                                tempBody.add(tokens[i]);
+                                i++;
+                            }
+
+                        } //while
+
+                    BExpression cond = new BExpression(tempCond.toArray(new Token[0]));
+                    Statements bodyStmts = new Statements(tempBody.toArray(new Token[0]));
+
+                    tempStatements.add(new WhileLoop(cond,bodyStmts));
+                    } //if
+                    else 
+                        System.out.println("No braces after condition");
+
                     break;
                 case NAME:
                     if(tokens[i+1].tokenType == TokenType.ASSIGNEMENT) {

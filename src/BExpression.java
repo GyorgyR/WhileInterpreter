@@ -23,6 +23,8 @@ public class BExpression implements Expression {
         for(Token item : expr)
             exprString += item.tokenValue + " ";
 
-        return exprString;
+        exprString = exprString.substring(0,exprString.length()-1);
+
+        return "BExpression (\""+exprString+"\")";
     } //toString
 } //BExpression

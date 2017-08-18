@@ -23,6 +23,8 @@ public class AExpression implements Expression {
             stringtoReturn += item.tokenValue + " ";
         }
 
-        return stringtoReturn;
+        stringtoReturn = stringtoReturn.substring(0,stringtoReturn.length()-1);
+
+        return "AExpression (\""+stringtoReturn+"\")";
     } //toString
 } //AExpression

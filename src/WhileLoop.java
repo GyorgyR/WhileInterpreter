@@ -12,7 +12,14 @@ public class WhileLoop implements Statement {
     private Statements loopBody;
 
     //constructor
-    public WhileLoop(Token[] tokens) {
-        
-    }
-}
+    public WhileLoop(BExpression _condition, Statements _body) {
+        condition = _condition;
+        loopBody = _body;
+    } //constructor
+
+    @Override
+    public String toString() {
+        return "WhileLoop[Condition("+condition.toString()
+            +"),Body("+loopBody.toString()+")]";
+    } //toString
+} //WhileLoop
