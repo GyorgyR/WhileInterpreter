@@ -3,7 +3,7 @@
     Author: Gyorgy Rethy
     Date: 2017.08.17.
 --------------------------------------------------------------------------------
-    Descrpition: ENtrypoint of the program.
+    Descrpition: Entrypoint of the program.
 */
 
 public class Main {
@@ -13,5 +13,6 @@ public class Main {
 
         //TODO argument check
         Token[] tokenList = lexer.tokens(args[0]);
+        AST ast = new AST(tokenList);
     } //main
 } //Main

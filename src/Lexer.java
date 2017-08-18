@@ -50,6 +50,8 @@ public class Lexer {
 
                         case '(':
                         case ')':
+                        case '{':
+                        case '}':
                         case ';':
                         case '+':
                         case '-':
@@ -135,10 +137,16 @@ public class Lexer {
                     tokens.add(new Token(item,TokenType.SEMICOLON));
                     break;
                 case "(":
-                    tokens.add(new Token(item,TokenType.OPENPARENTHESES));
+                    tokens.add(new Token(item,TokenType.OPAREN));
                     break;
                 case ")":
-                    tokens.add(new Token(item,TokenType.CLOSEPARENTHESES));
+                    tokens.add(new Token(item,TokenType.CPAREN));
+                    break;
+                case "{":
+                    tokens.add(new Token(item,TokenType.LBRACE));
+                    break;
+                case "}":
+                    tokens.add(new Token(item,TokenType.RBRACE));
                     break;
                 case "if":
                     tokens.add(new Token(item,TokenType.IF));

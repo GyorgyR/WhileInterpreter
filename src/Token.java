@@ -8,8 +8,8 @@
 
 public class Token {
 
-    private String tokenValue;
-    private TokenType tokenType;
+    public final String tokenValue;
+    public final TokenType tokenType;
 
     //constructor
     public Token (String _tokenValue, TokenType _tokenType) {
