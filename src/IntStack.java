@@ -10,6 +10,7 @@ public class IntStack {
 
     private int[] memSpace;
     private int spaceCounter;
+    private static int EXTENSION_RATE = 10;
 
     //constructor
     public IntStack() {
@@ -26,7 +27,7 @@ public class IntStack {
     public void push(int value) {
         if(spaceCounter == memSpace.length) {
             //deep copy
-            int[] newArr = new int[memSpace.length];
+            int[] newArr = new int[memSpace.length + EXTENSION_RATE];
             for(int i = 0; i < memSpace.length; i++)
                 newArr[i] = memSpace[i];
 
@@ -41,4 +42,8 @@ public class IntStack {
         spaceCounter--;
         return memSpace[spaceCounter];
     } //pop
+
+    public int[] toIntArray() {
+        return memSpace;
+    } //toIntArray
 } //IntStack

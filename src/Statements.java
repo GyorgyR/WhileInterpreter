@@ -10,7 +10,7 @@ import java.util.*;
 
 public class Statements {
 
-    private Statement[] statements;
+    public final Statement[] statements;
 
     //constructor
     public Statements(Token[] tokens) {

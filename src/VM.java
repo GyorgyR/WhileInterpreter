@@ -1,7 +1,7 @@
 /*
     Project: WhileInterpreter
     Author: Gyorgy Rethy
-    Date: 2017.08.18.
+    Date: 2017.08.22.
 --------------------------------------------------------------------------------
     Description: Virtual machine. Stack based, very simple.
 */
@@ -29,6 +29,8 @@
 
     -jmpge N  : jump to instruction at N if top >= top-1.
 
+    -jmpeq N  : jump to instrucion at N if top == top-1.
+
     -print    : print the value at the top of the stack.
 
     -halt     : end program.
@@ -51,7 +53,7 @@ public class VM {
     private IntStack theStack;
 
     //names of the bytes in the bytecode
-    private final int iconst = 0,
+    public final static int iconst = 0,
                       isave = 1,
                       iload = 2,
                       iadd = 3, 

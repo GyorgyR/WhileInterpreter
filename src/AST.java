@@ -9,7 +9,7 @@
 
 public class AST {
 
-    private Statements theProgram;
+    public final Statements theProgram;
 
     //constructor
     public AST(Token[] tokens) {

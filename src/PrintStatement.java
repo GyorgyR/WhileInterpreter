@@ -7,7 +7,7 @@
 */
 
 public class PrintStatement implements Statement {
-    private AExpression exprToPrint;
+    public final AExpression exprToPrint;
 
     public PrintStatement(AExpression tokens) {
         exprToPrint = tokens;

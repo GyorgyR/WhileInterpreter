@@ -7,8 +7,8 @@
 */
 
 public class Assignement implements Statement{
-    private Token name;
-    private AExpression value;
+    public final Token name;
+    public final AExpression value;
 
     //constructor
     public Assignement(Token _name, AExpression _value) {

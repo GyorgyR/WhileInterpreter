@@ -1,4 +1,4 @@
-    /*
+/*
     Project: WhileInterpreter
     Author: Gyorgy Rethy
     Date: 2017.08.18.
@@ -8,7 +8,7 @@
 
 public class AExpression implements Expression {
 
-    private Token[] expr;
+    public final Token[] expr;
 
     //constructor
     public AExpression(Token[] tokens) {
