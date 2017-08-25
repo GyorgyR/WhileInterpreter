@@ -50,4 +50,15 @@ public class IntStack {
     public int size() {
         return spaceCounter;
     } //size
+
+    public int[] getInterval(int start, int end) {
+        int[] interval = new int[end-start+1];
+
+        int index = 0;
+        for(int i = start; i <= end; i++) {
+            interval[index] = memSpace[i];
+            index++;
+        }
+        return interval;
+    } //getInterval
 } //IntStack

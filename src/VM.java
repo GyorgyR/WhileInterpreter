@@ -25,11 +25,13 @@
 
     -jmp N    : jump to instruction at N relative to position.
 
-    -jmpg N   : jump to instruction at N relative to position if top > top-1.
+    -jmpg N   : jump to instruction at N relative to position if top < top-1.
 
-    -jmpge N  : jump to instruction at N relative to position if top >= top-1.
+    -jmpge N  : jump to instruction at N relative to position if top <= top-1.
 
     -jmpeq N  : jump to instrucion at N relative to position if top == top-1.
+
+    -jmpne N : jump to instruction at N relative to pc if top != top-1.
 
     -print    : print the value at the top of the stack.
 
@@ -76,6 +78,7 @@ public class VM {
         varPool = new int[varCount];
         byteCode = theProgram;
         theStack = new IntStack();
+        printInstructions();
     } //constructor
 
 
@@ -83,7 +86,7 @@ public class VM {
         boolean isRunning = true;
 
         while(isRunning) {
-            System.out.println(byteCode[pc]);
+            //System.out.println(byteCode[pc]);
             int top;
             int underneath;
             switch(byteCode[pc]) {
@@ -120,7 +123,7 @@ public class VM {
                 case jmpg:
                     top = theStack.pop();
                     underneath = theStack.pop();
-                    if(top > underneath)
+                    if(top < underneath)
                         pc += byteCode[pc+1]-1;
                     else
                         pc++;
@@ -128,7 +131,7 @@ public class VM {
                 case jmpge:
                     top = theStack.pop();
                     underneath = theStack.pop();
-                    if(top >= underneath)
+                    if(top <= underneath)
                         pc += byteCode[pc+1]-1;
                     else
                         pc++;
@@ -148,6 +151,7 @@ public class VM {
                         pc += byteCode[pc+1]-1;
                     else
                         pc++;
+                    break;
                 case print:
                     int numberToPrint = theStack.pop();
                     System.out.println(numberToPrint);
@@ -156,7 +160,7 @@ public class VM {
                     isRunning = false;
                     break;
                 default:
-                    System.out.println("There is an error with the bytecode");
+                    System.out.println("There is an error with the bytecode: "+ byteCode[pc]);
                     break;
             } //switch
             pc++;
@@ -164,4 +168,64 @@ public class VM {
         } //while
 
     } //start
+
+    private void printInstructions() {
+        String name;
+        for(int i = 0; i < byteCode.length; i++) {
+            switch(byteCode[i]) {
+                case iconst:
+                    name = "iconst \t" + byteCode[i+1];
+                    i++;
+                    break;
+                case isave:
+                    name = "isave \t" + byteCode[i+1];
+                    i++;
+                    break;
+                case iload:
+                    name = "iload \t" + byteCode[i+1];
+                    i++;
+                    break;
+                case iadd:
+                    name = "iadd";
+                    break;
+                case isub:
+                    name = "isub";
+                    break;
+                case imul:
+                    name = "imul";
+                    break;
+                case jmp:
+                    name = "jmp \t" + byteCode[i+1];
+                    i++;
+                    break;
+                case jmpg:
+                    name = "jmpg \t" + byteCode[i+1];
+                    i++;
+                    break;
+                case jmpge:
+                    name = "jmpge \t" + byteCode[i+1];
+                    i++;
+                    break;
+                case jmpeq:
+                    name = "jmpeq \t" + byteCode[i+1];
+                    i++;
+                    break;
+                case jmpne:
+                    name = "jmpne \t" + byteCode[i+1];
+                    i++;
+                    break;
+                case print:
+                    name = "print";
+                    break;
+                case halt:
+                    name = "halt";
+                    break;
+                default:
+                    name = "Bad code: " + byteCode[i];
+                    break;
+            } //switch
+
+            System.out.println(name);
+        } //for
+    } //printInstructions
 } //VM

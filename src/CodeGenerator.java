@@ -37,7 +37,7 @@ public class CodeGenerator {
         } //for
 
         tempByteCode.push(VM.halt);
-        int[] toReturn = tempByteCode.toIntArray();
+        int[] toReturn = tempByteCode.getInterval(stackSize, tempByteCode.size()-1);
         while(tempByteCode.size() != stackSize)
             tempByteCode.pop();
         return toReturn;
@@ -47,8 +47,19 @@ public class CodeGenerator {
         System.out.println("If statement");
 
         //generate first the body to know where to jump
-        //int[] ifBody = byteCode(stmt.body);
-        //int[] elseBody = byteCode(stmt.elseBody);
+        int[] ifBody = byteCode(stmt.body);
+        int[] elseBody = byteCode(stmt.elseBody);
+
+        chopBExpr(stmt.condition, ifBody.length + 3);
+
+        for(int i = 0; i < ifBody.length - 1; i++)
+            tempByteCode.push(ifBody[i]);
+
+        tempByteCode.push(VM.jmp);
+        tempByteCode.push(elseBody.length + 1);
+
+        for(int i = 0; i < elseBody.length - 1; i++)
+            tempByteCode.push(elseBody[i]);
         //generate 
     } //generateIf
 
@@ -59,22 +70,27 @@ public class CodeGenerator {
         int[] loopBody = byteCode(loop.loopBody);
 
         int start = tempByteCode.size();
-        chopBExpr(loop.condition,loopBody.length+1);
+        chopBExpr(loop.condition,loopBody.length+3);
 
         for(int i = 0; i < loopBody.length-1; i++)
             tempByteCode.push(loopBody[i]);
 
         tempByteCode.push(VM.jmp);
-        tempByteCode.push(start-tempByteCode.size());
+        tempByteCode.push(start-tempByteCode.size()+1);
     } //generateWhile
 
     private void generateAssignement(Assignement ass) {
         System.out.println("Assignement");
         generateAExpr(ass.value);
         tempByteCode.push(VM.isave);
-        tempByteCode.push(varCount);
-        varNameToNumber.put(ass.name.tokenValue,varCount);
-        varCount++;
+        if(varNameToNumber.containsKey(ass.name.tokenValue)) {
+            tempByteCode.push(varNameToNumber.get(ass.name.tokenValue));
+        }
+        else {
+            tempByteCode.push(varCount);
+            varNameToNumber.put(ass.name.tokenValue,varCount);
+            varCount++;
+        }
     } //generateAssignement
 
     private void generatePrint(PrintStatement stmt) {
@@ -123,7 +139,7 @@ public class CodeGenerator {
         for(int i = 0; i < tokens.length; i++) {
             if(tokens[i].tokenType == TokenType.NOT)
                 isNegated = true;
-            if(tokens[i].tokenType == TokenType.FALSE ||
+            else if(tokens[i].tokenType == TokenType.FALSE ||
                tokens[i].tokenType == TokenType.TRUE && isNegated) {
                 tempByteCode.push(VM.jmp);
                 tempByteCode.push(address);
@@ -150,9 +166,9 @@ public class CodeGenerator {
                 generateAExpr(new AExpression(aexpr.toArray(new Token[0])));
 
                 if(operand.tokenType == TokenType.EQUAL && !isNegated)
-                    tempByteCode.push(VM.jmpeq);
-                else if(operand.tokenType == TokenType.EQUAL && isNegated)
                     tempByteCode.push(VM.jmpne);
+                else if(operand.tokenType == TokenType.EQUAL && isNegated)
+                    tempByteCode.push(VM.jmpeq);
                 else if(operand.tokenType == TokenType.LESSTHAN)
                     tempByteCode.push(VM.jmpg);
                 else if(operand.tokenType == TokenType.LESSTHANOREQUAL)
