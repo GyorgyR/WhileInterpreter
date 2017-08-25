@@ -14,8 +14,8 @@ public class Main {
         //TODO argument check
         Token[] tokenList = lexer.tokens(args[0]);
         AST ast = new AST(tokenList);
-        CodeGenerator cG = new CodeGenerator(ast.theProgram);
-        VM vm = new VM(10,cG.byteCode());
+        CodeGenerator cG = new CodeGenerator();
+        VM vm = new VM(10,cG.byteCode(ast.theProgram));
         vm.start();
     } //main
 } //Main

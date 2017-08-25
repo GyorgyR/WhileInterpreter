@@ -10,29 +10,27 @@ import java.util.*;
 
 public class CodeGenerator {
 
-    private Statements program;
     private int varCount;
     private Map<String,Integer> varNameToNumber;
     private IntStack tempByteCode;
 
     //constructor
-    public CodeGenerator(Statements stmts) {
-        program = stmts;
+    public CodeGenerator() {
         varCount = 0;
         varNameToNumber = new HashMap<String,Integer>();
         tempByteCode = new IntStack();
     } //constructor
 
-    public int[] byteCode() {
+    public int[] byteCode(Statements program) {
         Statement[] listStmts = program.statements;
 
         for(int i = 0; i < listStmts.length; i++) {
             if(listStmts[i] instanceof Assignement)
                 generateAssignement((Assignement)listStmts[i]);
             else if(listStmts[i] instanceof IFStatement)
-                System.out.println("If statement");
+                generateIf((IFStatement)listStmts[i]);
             else if(listStmts[i] instanceof WhileLoop)
-                System.out.println("While loop");
+                generateWhile((WhileLoop)listStmts[i]);
             else if(listStmts[i] instanceof PrintStatement)
                 generatePrint((PrintStatement)listStmts[i]);
         } //for
@@ -40,6 +38,20 @@ public class CodeGenerator {
         tempByteCode.push(VM.halt);
         return tempByteCode.toIntArray();
     } //byteCode
+
+    private void generateIf(IFStatement stmt) {
+        System.out.println("If statement");
+
+        //generate first the body to know where to jump
+        //generate 
+    } //generateIf
+
+    private void generateWhile(WhileLoop loop) {
+        System.out.println("While loop");
+
+        //first generate the body
+        int[] loopBody = byteCode(loop.loopBody);
+    } //generateWhile
 
     private void generateAssignement(Assignement ass) {
         System.out.println("Assignement");

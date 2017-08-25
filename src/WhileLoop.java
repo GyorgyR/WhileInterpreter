@@ -8,8 +8,8 @@
 
 public class WhileLoop implements Statement {
 
-    private BExpression condition;
-    private Statements loopBody;
+    public final BExpression condition;
+    public final Statements loopBody;
 
     //constructor
     public WhileLoop(BExpression _condition, Statements _body) {
