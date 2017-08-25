@@ -23,13 +23,13 @@
 
     -imul     : multiply the two top values.
 
-    -jmp N    : jump to instruction at N.
+    -jmp N    : jump to instruction at N relative to position.
 
-    -jmpg N   : jump to instruction at N if top > top-1.
+    -jmpg N   : jump to instruction at N relative to position if top > top-1.
 
-    -jmpge N  : jump to instruction at N if top >= top-1.
+    -jmpge N  : jump to instruction at N relative to position if top >= top-1.
 
-    -jmpeq N  : jump to instrucion at N if top == top-1.
+    -jmpeq N  : jump to instrucion at N relative to position if top == top-1.
 
     -print    : print the value at the top of the stack.
 
@@ -54,17 +54,18 @@ public class VM {
 
     //names of the bytes in the bytecode
     public final static int iconst = 0,
-                      isave = 1,
-                      iload = 2,
-                      iadd = 3, 
-                      isub = 4,
-                      imul = 5,
-                      jmp = 6,
-                      jmpg = 7,
-                      jmpge = 8,
-                      jmpeq = 9,
-                      print = 10,
-                      halt = 11;
+                            isave = 1,
+                            iload = 2,
+                            iadd = 3, 
+                            isub = 4,
+                            imul = 5,
+                            jmp = 6,
+                            jmpg = 7,
+                            jmpge = 8,
+                            jmpeq = 9,
+                            jmpne = 10,
+                            print = 11,
+                            halt = 12;
 
 
     //constructor
@@ -82,6 +83,7 @@ public class VM {
         boolean isRunning = true;
 
         while(isRunning) {
+            System.out.println(byteCode[pc]);
             int top;
             int underneath;
             switch(byteCode[pc]) {
@@ -113,13 +115,13 @@ public class VM {
                     theStack.push(underneath*top);
                     break;
                 case jmp:
-                    pc = byteCode[pc+1] - 1;
+                    pc += byteCode[pc+1] - 1;
                     break;
                 case jmpg:
                     top = theStack.pop();
                     underneath = theStack.pop();
                     if(top > underneath)
-                        pc = byteCode[pc+1]-1;
+                        pc += byteCode[pc+1]-1;
                     else
                         pc++;
                     break;
@@ -127,7 +129,7 @@ public class VM {
                     top = theStack.pop();
                     underneath = theStack.pop();
                     if(top >= underneath)
-                        pc = byteCode[pc+1]-1;
+                        pc += byteCode[pc+1]-1;
                     else
                         pc++;
                     break;
@@ -135,10 +137,17 @@ public class VM {
                     top = theStack.pop();
                     underneath = theStack.pop();
                     if(top == underneath)
-                        pc = byteCode[pc+1]-1;
+                        pc += byteCode[pc+1]-1;
                     else
                         pc++;
                     break;
+                case jmpne:
+                    top = theStack.pop();
+                    underneath = theStack.pop();
+                    if(top != underneath)
+                        pc += byteCode[pc+1]-1;
+                    else
+                        pc++;
                 case print:
                     int numberToPrint = theStack.pop();
                     System.out.println(numberToPrint);

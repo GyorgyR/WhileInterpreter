@@ -10,9 +10,9 @@ import java.util.*;
 
 public class IFStatement implements Statement {
 
-    private BExpression condition;
-    private Statements body;
-    private Statements elseBody;
+    public final BExpression condition;
+    public final Statements body;
+    public final Statements elseBody;
 
     //constructor
     public IFStatement(Token[] condTokens, Token[] bodyTokens, Token[] elseTokens) {

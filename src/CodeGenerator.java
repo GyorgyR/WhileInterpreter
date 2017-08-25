@@ -23,6 +23,7 @@ public class CodeGenerator {
 
     public int[] byteCode(Statements program) {
         Statement[] listStmts = program.statements;
+        int stackSize = tempByteCode.size();
 
         for(int i = 0; i < listStmts.length; i++) {
             if(listStmts[i] instanceof Assignement)
@@ -36,13 +37,18 @@ public class CodeGenerator {
         } //for
 
         tempByteCode.push(VM.halt);
-        return tempByteCode.toIntArray();
+        int[] toReturn = tempByteCode.toIntArray();
+        while(tempByteCode.size() != stackSize)
+            tempByteCode.pop();
+        return toReturn;
     } //byteCode
 
     private void generateIf(IFStatement stmt) {
         System.out.println("If statement");
 
         //generate first the body to know where to jump
+        //int[] ifBody = byteCode(stmt.body);
+        //int[] elseBody = byteCode(stmt.elseBody);
         //generate 
     } //generateIf
 
@@ -51,6 +57,15 @@ public class CodeGenerator {
 
         //first generate the body
         int[] loopBody = byteCode(loop.loopBody);
+
+        int start = tempByteCode.size();
+        chopBExpr(loop.condition,loopBody.length+1);
+
+        for(int i = 0; i < loopBody.length-1; i++)
+            tempByteCode.push(loopBody[i]);
+
+        tempByteCode.push(VM.jmp);
+        tempByteCode.push(start-tempByteCode.size());
     } //generateWhile
 
     private void generateAssignement(Assignement ass) {
@@ -67,6 +82,88 @@ public class CodeGenerator {
         generateAExpr(stmt.exprToPrint);
         tempByteCode.push(VM.print);
     } //generatePrint
+
+    private void chopBExpr(BExpression expr, int address) {
+        Token[] tokens = expr.expr;
+        List<Token> tempExpr = new ArrayList<Token>();
+
+        if(Arrays.asList(tokens).contains(new Token("|",TokenType.OR)) ||
+           Arrays.asList(tokens).contains(new Token("&",TokenType.AND))) {
+            for(int i = 0; i < tokens.length; i++) {
+                while(tokens[i].tokenType != TokenType.OR ||
+                      tokens[i].tokenType != TokenType.AND ||
+                      i >= tokens.length) {
+
+                    tempExpr.add(tokens[i]);
+                    i++;
+                } //while
+
+                if(i >= tokens.length) {
+                    generateBExpr(new BExpression(tempExpr.toArray(new Token[0])),address);
+                }
+                else if(tokens[i].tokenType == TokenType.AND) {
+                    generateBExpr(new BExpression(tempExpr.toArray(new Token[0])),address);
+                }
+                else if(tokens[i].tokenType == TokenType.OR) {
+                    generateBExpr(new BExpression(tempExpr.toArray(new Token[0])),0);
+                }
+            } //for
+        } //if
+        else {
+            generateBExpr(expr,address);
+        }
+    } //chopBExpr
+
+    private void generateBExpr(BExpression expr, int address) {
+        Token[] tokens = expr.expr;
+        List<Token> aexpr = new ArrayList<Token>();
+        boolean isNegated = false;
+        Token operand;
+
+        for(int i = 0; i < tokens.length; i++) {
+            if(tokens[i].tokenType == TokenType.NOT)
+                isNegated = true;
+            if(tokens[i].tokenType == TokenType.FALSE ||
+               tokens[i].tokenType == TokenType.TRUE && isNegated) {
+                tempByteCode.push(VM.jmp);
+                tempByteCode.push(address);
+            }
+            else {
+                while(tokens[i].tokenType != TokenType.EQUAL &&
+                      tokens[i].tokenType != TokenType.LESSTHAN &&
+                      tokens[i].tokenType != TokenType.LESSTHANOREQUAL) {
+                    System.out.println(tokens[i]);
+                    aexpr.add(tokens[i]);
+                    i++;
+                }
+
+                generateAExpr(new AExpression(aexpr.toArray(new Token[0])));
+                operand = tokens[i];
+                i++;
+                aexpr = new ArrayList<Token>();
+
+                while(i < tokens.length) {
+                    aexpr.add(tokens[i]);
+                    i++;
+                }
+
+                generateAExpr(new AExpression(aexpr.toArray(new Token[0])));
+
+                if(operand.tokenType == TokenType.EQUAL && !isNegated)
+                    tempByteCode.push(VM.jmpeq);
+                else if(operand.tokenType == TokenType.EQUAL && isNegated)
+                    tempByteCode.push(VM.jmpne);
+                else if(operand.tokenType == TokenType.LESSTHAN)
+                    tempByteCode.push(VM.jmpg);
+                else if(operand.tokenType == TokenType.LESSTHANOREQUAL)
+                    tempByteCode.push(VM.jmpge);
+
+                tempByteCode.push(address);
+            } //else
+
+            
+        } //for
+    } //generateBExpr
 
     private void generateAExpr(AExpression expr) {
         Token[] tokens = expr.expr;

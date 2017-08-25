@@ -9,7 +9,7 @@
 
 public class BExpression implements Expression {
 
-    private Token[] expr;
+    public final Token[] expr;
 
     public BExpression(Token[] tokens) {
         //TODO validity check

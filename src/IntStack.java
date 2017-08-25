@@ -46,4 +46,8 @@ public class IntStack {
     public int[] toIntArray() {
         return memSpace;
     } //toIntArray
+
+    public int size() {
+        return spaceCounter;
+    } //size
 } //IntStack
