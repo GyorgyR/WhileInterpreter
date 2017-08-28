@@ -4,6 +4,7 @@ y := 3;
 
 while (y <= r) do {d := d + 1; r := r - y;}
 
-if (!d = 0) then { print(0);} else {print(1);}
+if (!d = 0 & !r = 0 | y = 0) then {print(0);} else {print(1);}
+
 print (d);
 print (r);

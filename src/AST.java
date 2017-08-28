@@ -14,7 +14,7 @@ public class AST {
     //constructor
     public AST(Token[] tokens) {
         theProgram = new Statements(tokens);
-        System.out.println(theProgram);
+        //System.out.println(theProgram);
     } //constructor
 
     @Override

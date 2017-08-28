@@ -22,7 +22,7 @@ public class Lexer {
         readFile(filepath);
         enhanceSourceFileTokens();
         createTokenList();
-        printTokenList();
+        //printTokenList();
         return tokens.toArray(new Token[0]);
     } //tokens
 

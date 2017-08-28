@@ -27,6 +27,8 @@
 
     -jmpg N   : jump to instruction at N relative to position if top < top-1.
 
+    -jmpn N   : jump to instruction at N relative to pc if top > top-1
+
     -jmpge N  : jump to instruction at N relative to position if top <= top-1.
 
     -jmpeq N  : jump to instrucion at N relative to position if top == top-1.
@@ -63,11 +65,13 @@ public class VM {
                             imul = 5,
                             jmp = 6,
                             jmpg = 7,
-                            jmpge = 8,
-                            jmpeq = 9,
-                            jmpne = 10,
-                            print = 11,
-                            halt = 12;
+                            jmpn = 8,
+                            jmpge = 9,
+                            jmpen = 10,
+                            jmpeq = 11,
+                            jmpne = 12,
+                            print = 13,
+                            halt = 14;
 
 
     //constructor
@@ -85,6 +89,7 @@ public class VM {
     public void start() {
         boolean isRunning = true;
 
+        System.out.println("Output:");
         while(isRunning) {
             //System.out.println(byteCode[pc]);
             int top;
@@ -128,10 +133,26 @@ public class VM {
                     else
                         pc++;
                     break;
+                case jmpn:
+                    top = theStack.pop();
+                    underneath = theStack.pop();
+                    if(top > underneath)
+                        pc += byteCode[pc+1]-1;
+                    else
+                        pc++;
+                    break;
                 case jmpge:
                     top = theStack.pop();
                     underneath = theStack.pop();
                     if(top <= underneath)
+                        pc += byteCode[pc+1]-1;
+                    else
+                        pc++;
+                    break;
+                case jmpen:
+                    top = theStack.pop();
+                    underneath = theStack.pop();
+                    if(top >= underneath)
                         pc += byteCode[pc+1]-1;
                     else
                         pc++;
@@ -174,58 +195,67 @@ public class VM {
         for(int i = 0; i < byteCode.length; i++) {
             switch(byteCode[i]) {
                 case iconst:
-                    name = "iconst \t" + byteCode[i+1];
+                    name = i+": iconst \t" + byteCode[i+1];
                     i++;
                     break;
                 case isave:
-                    name = "isave \t" + byteCode[i+1];
+                    name = i+": isave \t" + byteCode[i+1];
                     i++;
                     break;
                 case iload:
-                    name = "iload \t" + byteCode[i+1];
+                    name = i+": iload \t" + byteCode[i+1];
                     i++;
                     break;
                 case iadd:
-                    name = "iadd";
+                    name = i+": iadd";
                     break;
                 case isub:
-                    name = "isub";
+                    name = i+": isub";
                     break;
                 case imul:
-                    name = "imul";
+                    name = i+": imul";
                     break;
                 case jmp:
-                    name = "jmp \t" + byteCode[i+1];
+                    name = i+": jmp \t" + byteCode[i+1];
                     i++;
                     break;
                 case jmpg:
-                    name = "jmpg \t" + byteCode[i+1];
+                    name = i+": jmpg \t" + byteCode[i+1];
+                    i++;
+                    break;
+                case jmpn:
+                    name = i + ": jmpn \t" + byteCode[i+1];
                     i++;
                     break;
                 case jmpge:
-                    name = "jmpge \t" + byteCode[i+1];
+                    name = i+": jmpge \t" + byteCode[i+1];
+                    i++;
+                    break;
+                case jmpen:
+                    name = i+": jmpen \t" + byteCode[i+1];
                     i++;
                     break;
                 case jmpeq:
-                    name = "jmpeq \t" + byteCode[i+1];
+                    name = i+": jmpeq \t" + byteCode[i+1];
                     i++;
                     break;
                 case jmpne:
-                    name = "jmpne \t" + byteCode[i+1];
+                    name = i+": jmpne \t" + byteCode[i+1];
                     i++;
                     break;
                 case print:
-                    name = "print";
+                    name = i+": print";
                     break;
                 case halt:
-                    name = "halt";
+                    name = i+": halt";
                     break;
                 default:
-                    name = "Bad code: " + byteCode[i];
+                    name = i+": Bad code: " + byteCode[i];
                     break;
             } //switch
 
             System.out.println(name);
         } //for
+        System.out.println();
     } //printInstructions
 } //VM

@@ -44,7 +44,7 @@ public class CodeGenerator {
     } //byteCode
 
     private void generateIf(IFStatement stmt) {
-        System.out.println("If statement");
+        //System.out.println("If statement");
 
         //generate first the body to know where to jump
         int[] ifBody = byteCode(stmt.body);
@@ -58,13 +58,13 @@ public class CodeGenerator {
         tempByteCode.push(VM.jmp);
         tempByteCode.push(elseBody.length + 1);
 
-        for(int i = 0; i < elseBody.length - 1; i++)
+        for(int i = 0; i < elseBody.length -  1; i++)
             tempByteCode.push(elseBody[i]);
         //generate 
     } //generateIf
 
     private void generateWhile(WhileLoop loop) {
-        System.out.println("While loop");
+        //System.out.println("While loop");
 
         //first generate the body
         int[] loopBody = byteCode(loop.loopBody);
@@ -80,7 +80,7 @@ public class CodeGenerator {
     } //generateWhile
 
     private void generateAssignement(Assignement ass) {
-        System.out.println("Assignement");
+        //System.out.println("Assignement");
         generateAExpr(ass.value);
         tempByteCode.push(VM.isave);
         if(varNameToNumber.containsKey(ass.name.tokenValue)) {
@@ -94,7 +94,7 @@ public class CodeGenerator {
     } //generateAssignement
 
     private void generatePrint(PrintStatement stmt) {
-        System.out.println("PrintStatement");
+        //System.out.println("PrintStatement");
         generateAExpr(stmt.exprToPrint);
         tempByteCode.push(VM.print);
     } //generatePrint
@@ -103,12 +103,11 @@ public class CodeGenerator {
         Token[] tokens = expr.expr;
         List<Token> tempExpr = new ArrayList<Token>();
 
-        if(Arrays.asList(tokens).contains(new Token("|",TokenType.OR)) ||
-           Arrays.asList(tokens).contains(new Token("&",TokenType.AND))) {
+        if(containsOrAnd(tokens)) {
             for(int i = 0; i < tokens.length; i++) {
-                while(tokens[i].tokenType != TokenType.OR ||
-                      tokens[i].tokenType != TokenType.AND ||
-                      i >= tokens.length) {
+                while(i < tokens.length &&
+                      tokens[i].tokenType != TokenType.OR &&
+                      tokens[i].tokenType != TokenType.AND ) {
 
                     tempExpr.add(tokens[i]);
                     i++;
@@ -118,17 +117,41 @@ public class CodeGenerator {
                     generateBExpr(new BExpression(tempExpr.toArray(new Token[0])),address);
                 }
                 else if(tokens[i].tokenType == TokenType.AND) {
-                    generateBExpr(new BExpression(tempExpr.toArray(new Token[0])),address);
+                    int initStackSize = tempByteCode.size();
+                    chopBExpr(new BExpression(Arrays.copyOfRange(tokens,i+1,tokens.length)),0);
+                    int afterSize = tempByteCode.size();
+                    while(tempByteCode.size() != initStackSize)
+                        tempByteCode.pop();
+                    generateBExpr(new BExpression(tempExpr.toArray(new Token[0])),afterSize-initStackSize + address);
                 }
                 else if(tokens[i].tokenType == TokenType.OR) {
-                    generateBExpr(new BExpression(tempExpr.toArray(new Token[0])),0);
+                    int initStackSize = tempByteCode.size();
+                    chopBExpr(new BExpression(Arrays.copyOfRange(tokens,i+1,tokens.length)),0);
+                    int afterSize = tempByteCode.size();
+                    while(tempByteCode.size() != initStackSize)
+                        tempByteCode.pop();
+                    tempExpr.add(0,new Token("!", TokenType.NOT));
+                    generateBExpr(new BExpression(tempExpr.toArray(new Token[0])),afterSize-initStackSize + 2);
                 }
+                //System.out.println(tempExpr);
+                tempExpr = new ArrayList<Token>();
             } //for
+
         } //if
         else {
             generateBExpr(expr,address);
         }
     } //chopBExpr
+
+    private boolean containsOrAnd(Token[] tokens) {
+        boolean contains = false;
+
+        for(Token item : tokens)
+            if(item.tokenType == TokenType.OR || item.tokenType == TokenType.AND)
+                contains = true;
+
+        return contains;
+    } //containsOrAnd
 
     private void generateBExpr(BExpression expr, int address) {
         Token[] tokens = expr.expr;
@@ -138,7 +161,7 @@ public class CodeGenerator {
 
         for(int i = 0; i < tokens.length; i++) {
             if(tokens[i].tokenType == TokenType.NOT)
-                isNegated = true;
+                isNegated = !isNegated;
             else if(tokens[i].tokenType == TokenType.FALSE ||
                tokens[i].tokenType == TokenType.TRUE && isNegated) {
                 tempByteCode.push(VM.jmp);
@@ -148,7 +171,7 @@ public class CodeGenerator {
                 while(tokens[i].tokenType != TokenType.EQUAL &&
                       tokens[i].tokenType != TokenType.LESSTHAN &&
                       tokens[i].tokenType != TokenType.LESSTHANOREQUAL) {
-                    System.out.println(tokens[i]);
+                    //System.out.println(tokens[i]);
                     aexpr.add(tokens[i]);
                     i++;
                 }
@@ -169,10 +192,14 @@ public class CodeGenerator {
                     tempByteCode.push(VM.jmpne);
                 else if(operand.tokenType == TokenType.EQUAL && isNegated)
                     tempByteCode.push(VM.jmpeq);
-                else if(operand.tokenType == TokenType.LESSTHAN)
+                else if(operand.tokenType == TokenType.LESSTHAN && !isNegated)
                     tempByteCode.push(VM.jmpg);
-                else if(operand.tokenType == TokenType.LESSTHANOREQUAL)
+                else if(operand.tokenType == TokenType.LESSTHAN && isNegated)
+                    tempByteCode.push(VM.jmpn);
+                else if(operand.tokenType == TokenType.LESSTHANOREQUAL && !isNegated)
                     tempByteCode.push(VM.jmpge);
+                else if(operand.tokenType == TokenType.LESSTHANOREQUAL && isNegated)
+                    tempByteCode.push(VM.jmpen);
 
                 tempByteCode.push(address);
             } //else
