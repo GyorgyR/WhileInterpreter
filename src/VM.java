@@ -31,9 +31,11 @@
 
     -jmpge N  : jump to instruction at N relative to position if top <= top-1.
 
+    -jmpen N  : jumpto instruction at N relative to position if top >= top-1.
+
     -jmpeq N  : jump to instrucion at N relative to position if top == top-1.
 
-    -jmpne N : jump to instruction at N relative to pc if top != top-1.
+    -jmpne N  : jump to instruction at N relative to pc if top != top-1.
 
     -print    : print the value at the top of the stack.
 
@@ -82,7 +84,7 @@ public class VM {
         varPool = new int[varCount];
         byteCode = theProgram;
         theStack = new IntStack();
-        printInstructions();
+        //printInstructions();
     } //constructor
 
 
