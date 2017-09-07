@@ -130,7 +130,7 @@ public class CodeGenerator {
                     int afterSize = tempByteCode.size();
                     while(tempByteCode.size() != initStackSize)
                         tempByteCode.pop();
-                    tempExpr.add(0,new Token("!", TokenType.NOT));
+                    tempExpr.add(0,new Token("!", TokenType.NOT, 0));
                     generateBExpr(new BExpression(tempExpr.toArray(new Token[0])),afterSize-initStackSize + 2);
                 }
                 //System.out.println(tempExpr);
@@ -309,10 +309,19 @@ public class CodeGenerator {
             tempByteCode.push(Integer.parseInt(token.tokenValue));
         }
         else if (token.tokenType == TokenType.NAME) {
-            tempByteCode.push(VM.iload);
-            tempByteCode.push(varNameToNumber.get(token.tokenValue));
+            try {
+                tempByteCode.push(VM.iload);
+                tempByteCode.push(varNameToNumber.get(token.tokenValue));
+            }
+            catch (NullPointerException e)
+            {
+                System.out.println("Variable not defined: " + token.tokenValue + "\nOn line: "+token.lineNo);
+                System.exit(1);
+            }
         }
-        else
-            System.out.println("Not a name or number: "+token);
+        else {
+            System.out.println("Not a name or number: " + token);
+            System.exit(1);
+        }
     } //loadNumberOrVar
 } //CodeGenerator

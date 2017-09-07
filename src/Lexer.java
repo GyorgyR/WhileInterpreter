@@ -47,7 +47,6 @@ public class Lexer {
                                 word = "";
                             }
                             break;
-
                         case '(':
                         case ')':
                         case '{':
@@ -70,9 +69,15 @@ public class Lexer {
 
                         default:
                             word += Character.toString(item);
+                            break;
                     } //switch
-                } //for
+                } //
+                if(!word.equals("")) {
+                    sourceFileTokens.add(word);
+                    word = "";
+                }
                 line = reader.readLine();
+                sourceFileTokens.add("#@#");
             } //while
         } //try
 
@@ -113,6 +118,9 @@ public class Lexer {
                         enhancedList.add(wordToAdd);
                         i++;
                     } //if
+                    else {
+                        enhancedList.add(tokensNow[i]);
+                    }
                     break;
                 default:
                     enhancedList.add(tokensNow[i]);
@@ -125,86 +133,90 @@ public class Lexer {
 
     //method to identify tokens and create a list from them
     private void createTokenList() {
+        int lineNo = 0;
         for(String item : sourceFileTokens) {
             switch(item) {
                 case ":=":
-                    tokens.add(new Token (item,TokenType.ASSIGNEMENT));
+                    tokens.add(new Token (item,TokenType.ASSIGNEMENT,lineNo));
                     break;
                 case "skip":
-                    tokens.add(new Token(item,TokenType.SKIP));
+                    tokens.add(new Token(item,TokenType.SKIP,lineNo));
                     break;
                 case ";":
-                    tokens.add(new Token(item,TokenType.SEMICOLON));
+                    tokens.add(new Token(item,TokenType.SEMICOLON,lineNo));
                     break;
                 case "(":
-                    tokens.add(new Token(item,TokenType.OPAREN));
+                    tokens.add(new Token(item,TokenType.OPAREN,lineNo));
                     break;
                 case ")":
-                    tokens.add(new Token(item,TokenType.CPAREN));
+                    tokens.add(new Token(item,TokenType.CPAREN,lineNo));
                     break;
                 case "{":
-                    tokens.add(new Token(item,TokenType.LBRACE));
+                    tokens.add(new Token(item,TokenType.LBRACE,lineNo));
                     break;
                 case "}":
-                    tokens.add(new Token(item,TokenType.RBRACE));
+                    tokens.add(new Token(item,TokenType.RBRACE,lineNo));
                     break;
                 case "if":
-                    tokens.add(new Token(item,TokenType.IF));
+                    tokens.add(new Token(item,TokenType.IF,lineNo));
                     break;
                 case "then":
-                    tokens.add(new Token(item,TokenType.THEN));
+                    tokens.add(new Token(item,TokenType.THEN,lineNo));
                     break;
                 case "else":
-                    tokens.add(new Token(item,TokenType.ELSE));
+                    tokens.add(new Token(item,TokenType.ELSE,lineNo));
                     break;
                 case "while":
-                    tokens.add(new Token(item,TokenType.WHILE));
+                    tokens.add(new Token(item,TokenType.WHILE,lineNo));
                     break;
                 case "do":
-                    tokens.add(new Token(item,TokenType.DO));
+                    tokens.add(new Token(item,TokenType.DO,lineNo));
                     break;
                 case "print":
-                    tokens.add(new Token(item,TokenType.PRINT));
+                    tokens.add(new Token(item,TokenType.PRINT,lineNo));
                     break;
                 case "true":
-                    tokens.add(new Token(item,TokenType.TRUE));
+                    tokens.add(new Token(item,TokenType.TRUE,lineNo));
                     break;
                 case "false":
-                    tokens.add(new Token(item,TokenType.FALSE));
+                    tokens.add(new Token(item,TokenType.FALSE,lineNo));
                     break;
                 case "=":
-                    tokens.add(new Token(item,TokenType.EQUAL));
+                    tokens.add(new Token(item,TokenType.EQUAL,lineNo));
                     break;
                 case "<":
-                    tokens.add(new Token(item,TokenType.LESSTHAN));
+                    tokens.add(new Token(item,TokenType.LESSTHAN,lineNo));
                     break;
                 case "<=":
-                    tokens.add(new Token(item,TokenType.LESSTHANOREQUAL));
+                    tokens.add(new Token(item,TokenType.LESSTHANOREQUAL,lineNo));
                     break;
                 case "!":
-                    tokens.add(new Token(item,TokenType.NOT));
+                    tokens.add(new Token(item,TokenType.NOT,lineNo));
                     break;
                 case "&":
-                    tokens.add(new Token(item,TokenType.AND));
+                    tokens.add(new Token(item,TokenType.AND,lineNo));
                     break;
                 case "|":
-                    tokens.add(new Token(item,TokenType.OR));
+                    tokens.add(new Token(item,TokenType.OR,lineNo));
                     break;
                 case "+":
-                    tokens.add(new Token(item,TokenType.PLUS));
+                    tokens.add(new Token(item,TokenType.PLUS,lineNo));
                     break;
                 case "-":
-                    tokens.add(new Token(item,TokenType.MINUS));
+                    tokens.add(new Token(item,TokenType.MINUS,lineNo));
                     break;
                 case "*":
-                    tokens.add(new Token(item,TokenType.MULTIPLICATION));
+                    tokens.add(new Token(item,TokenType.MULTIPLICATION,lineNo));
+                    break;
+                case "#@#":
+                    lineNo++;
                     break;
 
                 default:
                     if(isStringNumeric(item))
-                        tokens.add(new Token(item,TokenType.INT));
+                        tokens.add(new Token(item,TokenType.INT,lineNo));
                     else
-                        tokens.add(new Token(item, TokenType.NAME));
+                        tokens.add(new Token(item, TokenType.NAME,lineNo));
 
                     break;
             } //switch

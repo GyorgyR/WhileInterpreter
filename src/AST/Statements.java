@@ -76,6 +76,10 @@ public class Statements {
                                 i++;
                             } //while
                         } //if
+                        else {
+                            System.out.println("Missing then or {\n On line: "+tokens[i].lineNo);
+                            System.exit(-1);
+                        }
                         //TODO error reporting
                         //lastly getting the part after the else
                         if(tokens[i].tokenType == TokenType.ELSE && 
@@ -95,10 +99,15 @@ public class Statements {
 
                             } //while
                         } //if
+                        else {
+                            System.out.println("Missing else or {. \n On line: "+tokens[i]);
+                            System.exit(-1);                        }
                     } //if
-                    else 
+                    else {
                         //TODO throw exception
-                        System.out.println("Something wrong: after if no OPAREN");
+                        System.out.println("Missing '(' after if. \n On line: "+tokens[i].lineNo);
+                        System.exit(-1);
+                    }
                     tempStatements.add(new IFStatement(condTokens.toArray(new Token[0]),
                         bodyTokens.toArray(new Token[0]),elseTokens.toArray(new Token[0])));
                     break;
@@ -132,8 +141,10 @@ public class Statements {
                             i++;
                         } //while
                     } //if
-                    else 
-                        System.out.println("No brackets after while");
+                    else {
+                        System.out.println("No brackets after while. \nOn line: "+tokens[i].lineNo);
+                        System.exit(-1);
+                    }
 
                     if(tokens[i].tokenType == TokenType.DO &&
                         tokens[i+1].tokenType == TokenType.LBRACE) {
@@ -158,8 +169,10 @@ public class Statements {
 
                     tempStatements.add(new WhileLoop(cond,bodyStmts));
                     } //if
-                    else 
-                        System.out.println("No braces after condition");
+                    else {
+                        System.out.println("Missing do or { after while.\nOn line: "+tokens[i].lineNo);
+                        System.exit(-1);
+                    }
 
                     break;
                 case NAME:
@@ -168,16 +181,31 @@ public class Statements {
                         i+=2;
                         List<Token> tempTokens = new ArrayList<Token>();
                         while(tokens[i].tokenType != TokenType.SEMICOLON) {
+                            if(!isAExpr(tokens[i])) {
+                                System.out.println("Unexpected expression: " + tokens[i].tokenValue
+                                        +". Missing semicolon?"
+                                        +"\nOn line: "+tokens[i].lineNo);
+                                System.exit(-1);
+                            }
                             tempTokens.add(tokens[i]);
                             i++;
                         } //while
 
                         tempStatements.add(new Assignement(name, new AExpression(tempTokens.toArray(new Token[0]))));
                     } //if
+                    else {
+                        System.out.println("Unexpected symbol: " + tokens[i].tokenValue
+                                + "\nOn line: " + tokens[i].lineNo);
+                        System.exit(-1);
+                    }
                     break;
                 case PRINT:
                     List<Token> tempTokens = new ArrayList<Token>();
                     //TODO error checking
+                    if(tokens[i+1].tokenType != TokenType.OPAREN) {
+                        System.out.println("Missing ( after print\nOn line: "+tokens[i+1].lineNo);
+                        System.exit(-1);
+                    }
                     int pStack = 1;
                     i += 2;
                     while(pStack != 0) {
@@ -191,7 +219,7 @@ public class Statements {
 
                         i++;
                     } //while
-                    //i++;
+
                     tempStatements.add(new PrintStatement(new AExpression(tempTokens.toArray(new Token[0]))));
                     break;
                 case SKIP:
@@ -212,5 +240,18 @@ public class Statements {
             statementString += stmt.toString() + "\n";
 
         return statementString;
+    }
+
+    private boolean isAExpr(Token token) {
+        boolean isTrue = false;
+        if(token.tokenType == TokenType.PLUS ||
+                token.tokenType == TokenType.MINUS ||
+                token.tokenType == TokenType.MULTIPLICATION ||
+                token.tokenType == TokenType.NAME ||
+                token.tokenType == TokenType.INT)
+            isTrue = true;
+
+        return isTrue;
+
     }
 } //Statements
