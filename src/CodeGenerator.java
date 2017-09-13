@@ -12,12 +12,15 @@ public class CodeGenerator {
 
     private int varCount;
     private Map<String,Integer> varNameToNumber;
+    private Map<String,Integer> varInitLineNo;
     private IntStack tempByteCode;
+    private boolean isCodeOk = true;
 
     //constructor
     public CodeGenerator() {
         varCount = 0;
         varNameToNumber = new HashMap<String,Integer>();
+        varInitLineNo = new HashMap<String,Integer>();
         tempByteCode = new IntStack();
     } //constructor
 
@@ -214,6 +217,14 @@ public class CodeGenerator {
         for(int i = 0; i < tokens.length; i++) {
             if(tokens.length == 1)
                 loadNumberOrVar(tokens[i]);
+            else if(tokens.length == 2) {
+                if(tokens[i].tokenType == TokenType.MINUS) {
+                    Token oldToken = tokens[i+1];
+                    tokens[i+1] = new Token("-"+oldToken.tokenValue,oldToken.tokenType,oldToken.lineNo);
+                    i++;
+                    loadNumberOrVar(tokens[i]);
+                }
+            }
             else if(tokens.length == 3){
                 loadNumberOrVar(tokens[i]);
                 loadNumberOrVar(tokens[i+2]);
@@ -298,7 +309,7 @@ public class CodeGenerator {
                 }//else
             } //else if
             else 
-                System.out.println(
+                handleError(
                             "Error parsing arithmetic expression: "+tokens[i]);
         } //for
     } //generateAExpr
@@ -315,13 +326,26 @@ public class CodeGenerator {
             }
             catch (NullPointerException e)
             {
-                System.out.println("Variable not defined: " + token.tokenValue + "\nOn line: "+token.lineNo);
-                System.exit(1);
+                tempByteCode.pop();
+                tempByteCode.push(VM.iconst);
+                tempByteCode.push(0);
             }
         }
         else {
-            System.out.println("Not a name or number: " + token);
-            System.exit(1);
+            handleError("Not a name or number: " + token);
         }
     } //loadNumberOrVar
+
+    private void handleError(String message) {
+        System.err.println(message);
+        isCodeOk = false;
+    }
+
+    public int varCount() {
+        return varCount;
+    }
+
+    public boolean isRunnable() {
+        return isCodeOk;
+    }
 } //CodeGenerator

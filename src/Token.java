@@ -17,7 +17,7 @@ public class Token {
         //assignements
         tokenValue = _tokenValue;
         tokenType = _tokenType;
-        lineNo = _lineNo;
+        lineNo = _lineNo + 1;
     }
 
     @Override

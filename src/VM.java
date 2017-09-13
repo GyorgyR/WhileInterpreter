@@ -79,7 +79,7 @@ public class VM {
     //constructor
     public VM(int varCount, int[] theProgram) {
 
-        //initializitions
+        //initializations
         pc = 0;
         varPool = new int[varCount];
         byteCode = theProgram;
@@ -92,7 +92,7 @@ public class VM {
         boolean isRunning = true;
 
         System.out.println("Output:");
-        while(isRunning) {
+        while(isRunning && pc < byteCode.length) {
             //System.out.println(byteCode[pc]);
             int top;
             int underneath;

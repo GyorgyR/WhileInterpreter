@@ -6,11 +6,13 @@
     Description: Data structure for representing multiple statements.
 */
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Statements {
 
     public final Statement[] statements;
+    private static boolean isCodeOK = true;
 
     //constructor
     public Statements(Token[] tokens) {
@@ -57,7 +59,6 @@ public class Statements {
                             i++;
                         } //while
                         //now tokens[i] is the then and tokens[i+1] is {
-                        //TODO CHECK THEM
                         //then getting the body of the if
                         if(tokens[i].tokenType == TokenType.THEN &&
                             tokens[i+1].tokenType == TokenType.LBRACE) {
@@ -77,11 +78,11 @@ public class Statements {
                             } //while
                         } //if
                         else {
-                            System.out.println("Missing then or {\n On line: "+tokens[i].lineNo);
-                            System.exit(-1);
+                            handleError("Missing then or {\n On line: "+tokens[i].lineNo);
                         }
-                        //TODO error reporting
                         //lastly getting the part after the else
+                        if(i >= tokens.length)
+                            handleError("Unexpected end of file. Missing else?");
                         if(tokens[i].tokenType == TokenType.ELSE && 
                             tokens[i+1].tokenType == TokenType.LBRACE) {
                             int bStack = 1;
@@ -100,13 +101,10 @@ public class Statements {
                             } //while
                         } //if
                         else {
-                            System.out.println("Missing else or {. \n On line: "+tokens[i]);
-                            System.exit(-1);                        }
+                            handleError("Missing else or {. \n On line: "+tokens[i]); }
                     } //if
                     else {
-                        //TODO throw exception
-                        System.out.println("Missing '(' after if. \n On line: "+tokens[i].lineNo);
-                        System.exit(-1);
+                        handleError("Missing '(' after if. \n On line: "+tokens[i].lineNo);
                     }
                     tempStatements.add(new IFStatement(condTokens.toArray(new Token[0]),
                         bodyTokens.toArray(new Token[0]),elseTokens.toArray(new Token[0])));
@@ -124,7 +122,6 @@ public class Statements {
                     List<Token> tempCond = new ArrayList<Token>();
                     List<Token> tempBody = new ArrayList<Token>();
 
-                    //TODO error handling
                     if(tokens[i+1].tokenType == TokenType.OPAREN) {
                         int pStack = 1;
                         i += 2;
@@ -142,8 +139,7 @@ public class Statements {
                         } //while
                     } //if
                     else {
-                        System.out.println("No brackets after while. \nOn line: "+tokens[i].lineNo);
-                        System.exit(-1);
+                        handleError("No brackets after while. \nOn line: "+tokens[i].lineNo);
                     }
 
                     if(tokens[i].tokenType == TokenType.DO &&
@@ -170,8 +166,7 @@ public class Statements {
                     tempStatements.add(new WhileLoop(cond,bodyStmts));
                     } //if
                     else {
-                        System.out.println("Missing do or { after while.\nOn line: "+tokens[i].lineNo);
-                        System.exit(-1);
+                        handleError("Missing do or { after while.\nOn line: "+tokens[i].lineNo);
                     }
 
                     break;
@@ -182,10 +177,9 @@ public class Statements {
                         List<Token> tempTokens = new ArrayList<Token>();
                         while(tokens[i].tokenType != TokenType.SEMICOLON) {
                             if(!isAExpr(tokens[i])) {
-                                System.out.println("Unexpected expression: " + tokens[i].tokenValue
+                                handleError("Unexpected expression: " + tokens[i].tokenValue
                                         +". Missing semicolon?"
                                         +"\nOn line: "+tokens[i].lineNo);
-                                System.exit(-1);
                             }
                             tempTokens.add(tokens[i]);
                             i++;
@@ -194,21 +188,20 @@ public class Statements {
                         tempStatements.add(new Assignement(name, new AExpression(tempTokens.toArray(new Token[0]))));
                     } //if
                     else {
-                        System.out.println("Unexpected symbol: " + tokens[i].tokenValue
+                        handleError("Unexpected symbol: " + tokens[i].tokenValue
                                 + "\nOn line: " + tokens[i].lineNo);
-                        System.exit(-1);
                     }
                     break;
                 case PRINT:
                     List<Token> tempTokens = new ArrayList<Token>();
-                    //TODO error checking
+
                     if(tokens[i+1].tokenType != TokenType.OPAREN) {
-                        System.out.println("Missing ( after print\nOn line: "+tokens[i+1].lineNo);
-                        System.exit(-1);
+                        handleError("Missing ( after print\nOn line: "+tokens[i+1].lineNo);
                     }
+                    int lineNoOfBracket = tokens[i+1].lineNo;
                     int pStack = 1;
                     i += 2;
-                    while(pStack != 0) {
+                    while(pStack != 0 && i < tokens.length) {
                         if(tokens[i].tokenType == TokenType.OPAREN)
                             pStack++;
                         else if(tokens[i].tokenType == TokenType.CPAREN)
@@ -218,6 +211,13 @@ public class Statements {
                             tempTokens.add(tokens[i]);
 
                         i++;
+
+                        if(i >= tokens.length) {
+                            if(tokens[i-1].tokenType == TokenType.CPAREN)
+                                handleError("Missing semicolon after print. On line : "+lineNoOfBracket);
+                            else
+                                handleError("Unexpected end of file. Unclosed bracket on line : "+lineNoOfBracket);
+                        }
                     } //while
 
                     tempStatements.add(new PrintStatement(new AExpression(tempTokens.toArray(new Token[0]))));
@@ -225,7 +225,7 @@ public class Statements {
                 case SKIP:
                     break;
                 default:
-                    System.out.println("Ooops, skipped: "+tokens[i].toString());
+                    //Something went horribly wrong
                     break;
             } //switch
         } //for
@@ -253,5 +253,14 @@ public class Statements {
 
         return isTrue;
 
+    }
+
+    private void handleError(String message) {
+        System.err.println(message);
+        isCodeOK = false;
+    }
+
+    public boolean isRunnable() {
+        return isCodeOK;
     }
 } //Statements
